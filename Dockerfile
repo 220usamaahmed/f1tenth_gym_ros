@@ -37,7 +37,8 @@ RUN apt-get -y dist-upgrade
 RUN pip3 install transforms3d
 
 # f1tenth gym
-RUN git clone https://github.com/f1tenth/f1tenth_gym
+# RUN git clone https://github.com/f1tenth/f1tenth_gym
+RUN git clone https://github.com/220usamaahmed/f1tenth_gym.git
 RUN cd f1tenth_gym && \
     pip3 install -e .
 
@@ -49,6 +50,8 @@ RUN source /opt/ros/foxy/setup.bash && \
     apt-get update --fix-missing && \
     rosdep install -i --from-path src --rosdistro foxy -y && \
     colcon build
+
+EXPOSE 3000
 
 WORKDIR '/sim_ws'
 ENTRYPOINT ["/bin/bash"]

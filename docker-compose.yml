@@ -29,6 +29,8 @@ services:
       - .:/sim_ws/src/f1tenth_gym_ros
     environment:
       - DISPLAY=novnc:0.0
+    ports:
+      - "3000:3000"
     networks:
       - x11
     stdin_open: true
