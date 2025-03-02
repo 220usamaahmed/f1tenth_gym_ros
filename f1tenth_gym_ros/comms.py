@@ -13,6 +13,9 @@ import pickle
 import select
 
 
+TICK_RATE = 0.1
+
+
 class Comms(Node):
     def __init__(self):
         super().__init__("comms")
@@ -45,7 +48,7 @@ class Comms(Node):
         self._action_publisher = self.create_publisher(
             AckermannDriveStamped, "/drive", 10
         )
-        self.timer = self.create_timer(1.0, self._timer_callback)
+        self.timer = self.create_timer(TICK_RATE, self._timer_callback)
 
     def _empty_actions_queue(self):
         action = None
@@ -61,8 +64,8 @@ class Comms(Node):
             return
 
         msg = AckermannDriveStamped()
-        msg.drive.speed = action.speed
-        msg.drive.steering_angle = action.steering_angle
+        msg.drive.speed = action.get("speed", 0.0)
+        msg.drive.steering_angle = action.get("steering_angle", 0.0)
 
         self._action_publisher.publish(msg)
 
@@ -159,9 +162,10 @@ class CommsSocket:
         return {
             "scan": {
                 "scan_lines": list(scan.ranges),
-                "max_range": scan.range_max,
-                "min_range": scan.range_min,
-                "fov": (scan.angle_max - scan.angle_min),
+                "range_max": scan.range_max,
+                "range_min": scan.range_min,
+                "angle_max": scan.angle_max,
+                "angle_min": scan.angle_min,
             },
             "odom": {
                 "linear_velocity_x": odom.twist.twist.linear.x,
@@ -181,7 +185,7 @@ class CommsSocket:
                 CommsSocket.logger.info(f"Connected by {addr}")
 
                 while True:
-                    time.sleep(1)
+                    time.sleep(TICK_RATE)
                     if stop_event.is_set():
                         conn.close()
                         break
